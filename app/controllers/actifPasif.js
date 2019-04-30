@@ -45,6 +45,29 @@ var mongoose = require("mongoose"),
 // 	]
 // };
 
+/*
+
+name :"balance"
+nom : Actif a court terme
+list[{nom:"...",montant}]
+
+total actif
+
+nom:Passif a court terme
+list[{nom:"...",montant}]
+
+total passif
+
+
+nom : Capitaux Propres
+list[{nom:"...",montant}]
+
+total Capitaux
+
+Total passif + Capitaux
+
+*/
+
 exports.list_all_actifPasifs = function(req, res) {
 	let message = "";
 	actifPasif.find({}, function(err, echange) {
@@ -422,7 +445,7 @@ exports.get_depenses = async function(req, res) {
 	var arrPassifCourtTerme = await getPassifActifCurrentMonth(str_passifs_a_court_termes);
 	var arrPassifLongTerme = await getPassifActifCurrentMonth(str_passifs_a_long_termes);
 	var arrActifCourtTerme = await getPassifActifCurrentMonth(str_actifs_a_court_termes);
-	console.log("arrActifCourtTerme : ", arrActifCourtTerme);
+	//console.log("arrActifCourtTerme : ", arrActifCourtTerme);
 	var arrActifLongTerme = await getPassifActifCurrentMonth(str_actifs_a_long_termes);
 	var arrDepense = await getPassifActifCurrentMonth(str_depenses);
 	var arrSollicitude = await getSollicitudeCurrentMonth();

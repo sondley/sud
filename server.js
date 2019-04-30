@@ -41,12 +41,23 @@ var ActifPasif = require("./app/models/actifPasif");
 var Rabais = require("./app/models/Rabais");
 
 //List of Controller
-
+const ServicesCaisses = require("./app/services/caisse");
 var controllerUsers = require("./app/controllers/user"); // get our mongoose model
 var schedule = require("node-schedule");
 var createPaiement = schedule.scheduleJob({ hour: 14, minute: 01, date: 11 }, function() {
 	console.log("Hi helo");
 	var paiement_user = controllerUsers.paiement_Mensual();
+});
+
+var rule = new schedule.RecurrenceRule();
+rule.dayOfWeek = [0, new schedule.Range(0, 6)];
+rule.hour = 23;
+rule.minute = 23;
+
+var caisseClose = schedule.scheduleJob(rule, function() {
+	console.log("Hi helo");
+	var closeCaisse = ServicesCaisses.closeCaisse();
+	console.log("closeCaisse : ", closeCaisse);
 });
 
 const errorHandler = require("./app/services/error/error");

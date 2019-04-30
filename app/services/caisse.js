@@ -4,13 +4,16 @@ var mongoose = require("mongoose");
 
 const User = mongoose.model("Utilisateurs");
 const Caisse = mongoose.model("Caisses");
+const caisseTransaction = mongoose.model("caisseTransactions");
 
 module.exports = {
 	addUserToCaisse,
 	getCaisseToDay,
 	normalizeDate,
 	getCaisseNow_1,
-	checkStateCaisse
+	checkStateCaisse,
+	totalDisponibleCaisseToday,
+	closeCaisse
 };
 
 async function checkStateCaisse() {
@@ -43,6 +46,61 @@ async function checkStateCaisse() {
 				return true;
 			}
 		}
+	});
+}
+
+async function totalDisponibleCaisseToday() {
+	var today = new Date();
+	// console.log("today : ", today);
+	var dd = today.getDate();
+	var mm = today.getMonth() + 1; //January is 0!
+	var yyyy = today.getFullYear();
+
+	if (dd < 10) {
+		dd = "0" + dd;
+	}
+
+	if (mm < 10) {
+		mm = "0" + mm;
+	}
+
+	var newDate = mm + "/" + dd + "/" + yyyy;
+
+	let message = "";
+	return caisseTransaction.find({}).then(caisse => {
+		var totalRentree = 0;
+		var totalSortie = 0;
+		for (let i = 0; i < caisse.length; i++) {
+			var _date = caisse[i].created;
+			var _dd = _date.getDate();
+			var _mm = _date.getMonth() + 1; //January is 0!
+			var _yyyy = _date.getFullYear();
+
+			if (_dd < 10) {
+				_dd = "0" + _dd;
+			}
+
+			if (_mm < 10) {
+				_mm = "0" + _mm;
+			}
+
+			var dateCompare = _mm + "/" + _dd + "/" + _yyyy;
+			// console.log("newDate : ", newDate);
+			// console.log("dateCompare : ", dateCompare);
+
+			if (dateCompare == newDate) {
+				// console.log("newDate : ", newDate);
+				// console.log("dateCompare : ", dateCompare);
+				if (caisse[i].flux == "Rentree") {
+					totalRentree += caisse[i].montant * 1;
+				} else {
+					totalSortie += caisse[i].montant * 1;
+				}
+			}
+		}
+		var total = totalRentree - totalSortie;
+		//var total = totalRentree - totalSortie;
+		return total;
 	});
 }
 
@@ -82,6 +140,12 @@ async function getCaisseNow_1() {
 				});
 			} else return caisse;
 		}
+	});
+}
+async function getProduitById(strId) {
+	return Iproduit.findById(strId).then(i_produit => {
+		//console.log(i_produit.sellPrice);
+		return i_produit;
 	});
 }
 
@@ -142,4 +206,45 @@ async function addUserToCaisse(idUser, idCaisse) {
 	});
 
 	return success;
+}
+
+async function closeCaisse() {
+	let message = "";
+	var user = "auto-close";
+	var nomPersonne = user;
+
+	var today = new Date();
+	var dd = today.getDate();
+	var mm = today.getMonth() + 1; //January is 0!
+	var yyyy = today.getFullYear();
+
+	if (dd < 10) {
+		dd = "0" + dd;
+	}
+
+	if (mm < 10) {
+		mm = "0" + mm;
+	}
+
+	var newDate = mm + "/" + dd + "/" + yyyy;
+
+	var _Caisse = await getCaisseToDay();
+
+	var idCaisse = _Caisse[0]._id;
+	var totalCaisseNow = await totalDisponibleCaisseToday();
+
+	if (_Caisse[0].etat == "1") {
+		Caisse.findOneAndUpdate(
+			{ _id: idCaisse },
+			{ $set: { quantiteRemise: totalCaisseNow, valideur: nomPersonne, dateFermer: newDate, etat: "0" } },
+			{ new: true },
+			function(err, caisse) {
+				if (err) {
+					return err;
+				} else {
+					return true;
+				}
+			}
+		);
+	}
 }

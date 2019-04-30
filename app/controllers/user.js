@@ -1009,10 +1009,12 @@ exports.closeCaisse = async function(req, res) {
 	var _Caisse = await ServicesCaisses.getCaisseToDay();
 
 	var idCaisse = _Caisse[0]._id;
+	var totalCaisseNow = await ServicesCaisses.totalDisponibleCaisseToday();
+	console.log(totalCaisseNow);
 
 	Caisse.findOneAndUpdate(
 		{ _id: idCaisse },
-		{ $set: { quantiteRemise: req.body.quantiteRemise, valideur: nomPersonne, dateFermer: newDate, etat: "0" } },
+		{ $set: { quantiteRemise: totalCaisseNow, valideur: nomPersonne, dateFermer: newDate, etat: "0" } },
 		{ new: true },
 		function(err, caisse) {
 			if (err) {
@@ -1107,9 +1109,11 @@ exports.getBNR = function(req, res) {
 };
 
 exports.testFast = async function(req, res) {
-	var state = await ServicesCaisses.checkStateCaisse();
-	console.log("state : ", state);
-	let message = {};
+	var totalCaisseNow = await ServicesCaisses.totalDisponibleCaisseToday();
+	console.log(totalCaisseNow);
+	// var state = await ServicesCaisses.checkStateCaisse();
+	// console.log("state : ", state);
+	// let message = {};
 
-	res.json({ data: state, success: true, message: message });
+	// res.json({ data: state, success: true, message: message });
 };
