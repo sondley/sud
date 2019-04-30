@@ -44,7 +44,7 @@ var Rabais = require("./app/models/rabais");
 const ServicesCaisses = require("./app/services/caisse");
 var controllerUsers = require("./app/controllers/user"); // get our mongoose model
 var schedule = require("node-schedule");
-var createPaiement = schedule.scheduleJob({ hour: 14, minute: 01, date: 11 }, function() {
+var createPaiement = schedule.scheduleJob({ hour: 14, minute: 12, date: 30 }, function() {
 	console.log("Hi helo");
 	var paiement_user = controllerUsers.paiement_Mensual();
 });

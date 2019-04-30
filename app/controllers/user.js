@@ -235,10 +235,10 @@ async function create_paiement(user) {
 	// );
 }
 
-exports.paiement_Mensual = async function(req, res) {
+exports.paiement_Mensual = async function() {
 	const user = await todoUsers();
-	var userRealisateur = getUserById(req.body.idRealisateur);
-	var nomRealisateur = userRealisateur.nom + " " + userRealisateur.prenom;
+	//var userRealisateur = getUserById(req.body.idRealisateur);
+	//var nomRealisateur = userRealisateur.nom + " " + userRealisateur.prenom;
 
 	var objPaiement = [];
 	let total = 0;
@@ -251,7 +251,7 @@ exports.paiement_Mensual = async function(req, res) {
 
 	objPaiementFinal = Object.assign(
 		{},
-		{ arrayPaiement: objPaiement, total: total, idRealisateur: req.body.idRealisateur, nomRealisateur }
+		{ arrayPaiement: objPaiement, total: total, idRealisateur: "auto", nomRealisateur: "auto" }
 	);
 
 	var new_Paiement = new Paiement(objPaiementFinal);
@@ -1041,10 +1041,21 @@ exports.ValiderAchat = async function(req, res) {
 			//console.log("********hi");
 			return Achat.findById(req.body.idAchat).then(result => {
 				// console.log(" result : ", result);
+				console.log("body receive ", req.body);
 				if (result.etat == "1") {
 					let message = "";
 					var today = new Date();
 					var totalFinal = req.body.transportFrais + req.body.autres + result.total - rabais;
+
+					if (req.body.montant < result.totalFinal * 1) {
+						var _dette = result.totalFinal * 1 - rabais * 1 - req.body.totalDonne;
+						var objDette = Object.assign(
+							{},
+							{ nomClient: result.client, idCommande: req.body.idAchat, quantite: _dette }
+						);
+						var new_echange = new DetteFournisseurs(objDette);
+						new_echange.save();
+					}
 					// console.log(" totalFinal : ", totalFinal);
 					Achat.findOneAndUpdate(
 						{ _id: req.body.idAchat },
