@@ -421,7 +421,7 @@ async function getPassifCurrentMonth(strType) {
 				console.log("dbgd");
 				var objActifPasif = {};
 				var nom = actifPasif[i].description;
-				var montant = actifPasif[i].montant;
+				var montant = actifPasif[i].montant * 1;
 				objActifPasif = Object.assign({}, { nom, montant });
 				console.log("-----objActifPasif ", objActifPasif);
 
@@ -477,7 +477,7 @@ async function getActifCurrentMonth(strType) {
 			if (_mm == mm && _yyyy == yyyy) {
 				var objActifPasif = {};
 				var nom = actifPasif[i].description;
-				var montant = actifPasif[i].montant;
+				var montant = actifPasif[i].montant * 1;
 				objActifPasif = Object.assign({}, { nom, montant });
 
 				actifs.push(objActifPasif);
