@@ -175,24 +175,24 @@ exports.create_a_orden = async function(req, res) {
 
 		let prixUnite = obj.sellPrice.value * 1;
 
-		console.log(" obj.unit : ", obj.unit);
-		console.log(" quantite: ", quantite);
-		console.log(" obj.limit : ", obj.limit);
-		if (obj.unit - quantite >= obj.limit) {
-			console.log("********yes");
+		// console.log(" obj.unit : ", obj.unit);
+		// console.log(" quantite: ", quantite);
+		// console.log(" obj.limit : ", obj.limit);
+		if (obj.unit - quantite <= obj.limit) {
+			// console.log("********yes");
+			var value = obj.unit - quantite;
 			var messageNotification =
 				"Vous devez ajouter au stock de " +
 				nom +
 				" Car il Vous Reste " +
-				obj.unit -
-				quantite +
+				value +
 				" Vous avez mis une limite de " +
 				obj.limit;
-			var notifications = await ServicesNotification.createNotification(
-				objOrden[i].idproduit,
-				nom,
-				messageNotification
-			);
+			var idproduit = objOrden[i].idproduit.toString();
+			var nomProduit = nom;
+			var messages = messageNotification;
+
+			var notifications = await ServicesNotification.createNotification(idproduit, nomProduit, messages);
 		}
 
 		//let moveReserve = Services.moveReserve(objOrden[i].idproduit, objOrden[i].quantite);

@@ -9,7 +9,7 @@ module.exports = {
 };
 
 async function checkExisteNotificationProduct(_idProduit) {
-	return Notification.findById({ idProduit: _idProduit }).then(result => {
+	return Notification.find({ idProduit: _idProduit }).then(result => {
 		var condition;
 		if (result.length == 0) {
 			condition = 1;
@@ -20,12 +20,13 @@ async function checkExisteNotificationProduct(_idProduit) {
 	});
 }
 
-async function createNotification(idProduit, nomProduit, message) {
+async function createNotification(idProduit, nomProduit, messages) {
 	var objNotification = {};
 
-	objNotification = Object.assign({}, { idProduit, nomProduit, message });
-
+	objNotification = Object.assign({}, { idProduit: idProduit, nomProduit: nomProduit, message: messages });
+	console.log("objNotification : ", objNotification);
 	let check = await checkExisteNotificationProduct(idProduit);
+
 	if (check == 1) {
 		var new_notification = new Notification(objNotification);
 

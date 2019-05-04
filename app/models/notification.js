@@ -9,8 +9,7 @@ module.exports = mongoose.model(
 	new Schema({
 		idProduit: {
 			type: String,
-			required: true,
-			unique: true
+			required: true
 		},
 		nomProduit: {
 			type: String,
