@@ -15,8 +15,12 @@ module.exports = mongoose.model(
 			type: String,
 			required: true
 		},
-		message: {
-			type: String,
+		limit: {
+			type: SchemaTypes.Number,
+			required: true
+		},
+		value: {
+			type: SchemaTypes.Number,
 			required: true
 		},
 		created: {

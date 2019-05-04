@@ -20,10 +20,10 @@ async function checkExisteNotificationProduct(_idProduit) {
 	});
 }
 
-async function createNotification(idProduit, nomProduit, messages) {
+async function createNotification(idProduit, nomProduit, value, limit) {
 	var objNotification = {};
 
-	objNotification = Object.assign({}, { idProduit: idProduit, nomProduit: nomProduit, message: messages });
+	objNotification = Object.assign({}, { idProduit: idProduit, nomProduit: nomProduit, value: value, limit: limit });
 	console.log("objNotification : ", objNotification);
 	let check = await checkExisteNotificationProduct(idProduit);
 

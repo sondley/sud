@@ -192,7 +192,7 @@ exports.create_a_orden = async function(req, res) {
 			var nomProduit = nom;
 			var messages = messageNotification;
 
-			var notifications = await ServicesNotification.createNotification(idproduit, nomProduit, messages);
+			var notifications = await ServicesNotification.createNotification(idproduit, nomProduit, value, obj.limit);
 		}
 
 		//let moveReserve = Services.moveReserve(objOrden[i].idproduit, objOrden[i].quantite);
