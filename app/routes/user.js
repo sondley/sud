@@ -70,5 +70,5 @@ module.exports = function(app) {
 
 	app.route("/testFast").get(authorize.ensureAuthenticated, todoList.testFast);
 
-	app.route("/getNotifications").get(authorize.ensureAuthenticated, todoList.getNotification);
+	app.route("/getNotifications").get(todoList.getNotification);
 };

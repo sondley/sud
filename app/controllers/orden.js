@@ -174,6 +174,10 @@ exports.create_a_orden = async function(req, res) {
 		let nom = obj.nom;
 
 		let prixUnite = obj.sellPrice.value * 1;
+
+		console.log(" obj.unit : ", obj.unit);
+		console.log(" quantite: ", quantite);
+		console.log(" obj.limit : ", obj.limit);
 		if (obj.unit - quantite >= obj.limit) {
 			console.log("********yes");
 			var messageNotification =
