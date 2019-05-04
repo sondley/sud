@@ -69,4 +69,6 @@ module.exports = function(app) {
 	app.route("/getBNR").post(authorize.ensureAuthenticated, todoList.getBNR);
 
 	app.route("/testFast").get(authorize.ensureAuthenticated, todoList.testFast);
+
+	app.route("getNotifications").get(authorize.ensureAuthenticated, todoList.getNotification);
 };

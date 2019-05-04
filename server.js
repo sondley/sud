@@ -39,6 +39,7 @@ var Paiement = require("./app/models/paiement"); // get our mongoose model
 var Devolution = require("./app/models/devolution"); // get our mongoose model
 var ActifPasif = require("./app/models/actifPasif");
 var Rabais = require("./app/models/rabais");
+var Notifications = require("./app/models/notification");
 
 //List of Controller
 const ServicesCaisses = require("./app/services/caisse");

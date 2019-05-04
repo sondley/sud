@@ -130,18 +130,18 @@ exports.create_a_devolution = async function(req, res) {
 	var numero = req.body.numero;
 
 	let user = await getUserById(req.body.idRealisateur);
-	console.log("user : ", user);
+	// console.log("user : ", user);
 
 	var realisateur = user.nom + " " + user.prenom;
 
 	//console.log(" oldObject : ",oldObject);
 	for (let j = 0; j < arrayOrden.length; j++) {
 		total += arrayOrden[j].quantite * arrayOrden[j].prixUnite * 1;
-		console.log(arrayOrden[j].idproduit + " " + arrayOrden[j].quantite);
+		// console.log(arrayOrden[j].idproduit + " " + arrayOrden[j].quantite);
 		let addReserve = await Services.addReserve(arrayOrden[j].idproduit, arrayOrden[j].quantite);
 	}
 
-	console.log("total : ", total);
+	// console.log("total : ", total);
 
 	var objDevolution = Object.assign(
 		{},
@@ -155,7 +155,7 @@ exports.create_a_devolution = async function(req, res) {
 		}
 	);
 
-	console.log("objDevolution : ", objDevolution);
+	// console.log("objDevolution : ", objDevolution);
 
 	var new_devolution = new Devolution(objDevolution);
 

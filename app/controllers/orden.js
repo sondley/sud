@@ -6,6 +6,7 @@ var mongoose = require("mongoose"),
 	Orden = mongoose.model("OrdenClients");
 
 const Services = require("../services/manageResevas");
+const ServicesNotification = require("../services/notification");
 
 exports.list_all_ordens = function(req, res) {
 	let message = "";
@@ -151,7 +152,7 @@ exports.create_a_orden = async function(req, res) {
 	const objOrden = req.body.arrayOrden;
 	let message = {};
 	let _numero = await getLastNumeroOrden();
-	console.log("_numero : ", _numero);
+	// console.log("******_numero : ", _numero);
 
 	//console.log("objOrden : ",objOrden);
 
@@ -173,8 +174,20 @@ exports.create_a_orden = async function(req, res) {
 		let nom = obj.nom;
 
 		let prixUnite = obj.sellPrice.value * 1;
+		if (obj.unit - quantite >= obj.limit) {
+			console.log("********yes");
+			var messageNotification =
+				"Vous devez ajouter au stock de " +
+				nom +
+				" Car il Vous Reste " +
+				obj.unit -
+				quantite +
+				" Vous avez mis une limite de " +
+				obj.limit;
+			ServicesNotification.createNotification(objOrden[i].idproduit, nom, messageNotification);
+		}
 
-		let moveReserve = Services.moveReserve(objOrden[i].idproduit, objOrden[i].quantite);
+		//let moveReserve = Services.moveReserve(objOrden[i].idproduit, objOrden[i].quantite);
 		//console.log("yesss");
 
 		resObjOrden = Object.assign(
@@ -204,38 +217,6 @@ exports.create_a_orden = async function(req, res) {
 			res.json({ data: orden, success: true, message: message });
 		}
 	});
-	//res.json(resultObject);
-
-	//const obj = Object.assign({},req.body,{total:totalOrden});
-
-	/*var new_orden = new Orden(obj);
-    
-    new_orden.save(function(err, orden) {
-      if (err)
-      res.send(err);
-      res.json(orden);
-    });*/
-	/* Iproduit.find({})
-    .where('nom').in(['mais', 'riz']).then(obj =>{
-      console.log(obj);
-      console.log("-------------------------------------");
-      return removeDuplicates(obj, "nom").then(object=>{
-        for(let i in objOrden){
-          //console.log("i : ",i);
-          console.log("Name : ",objOrden[i].nom); 
-          console.log("Name : ",object[i].nom); 
-          
-          //let result = getPriceByName(objOrden[i].nom);
-              totalOrden+=((object[i].sellPrice)*(objOrden[i].quantite));
-            
-            
-        }
-        console.log(totalOrden);
-      });
-            //for(let i=0; i<uniqueArray.length; i++){
-            //console.log(uniqueArray);
-            //}
-    })*/
 };
 
 exports.read_a_orden = function(req, res) {

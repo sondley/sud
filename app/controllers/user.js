@@ -5,6 +5,7 @@ var async = require("async");
 var mongoose = require("mongoose"),
 	Iproduit = mongoose.model("Itemsproduits"),
 	Paiement = mongoose.model("Paiements"),
+	Notification = mongoose.model("Notifications"),
 	User = mongoose.model("Utilisateurs");
 
 const ServicesCaisses = require("../services/caisse");
@@ -483,11 +484,11 @@ exports.valideOrden = async function(req, res) {
 				if (result.etat == "1") {
 					let message = "";
 					var today = new Date();
-					console.log("Donnee : ", req.body.totalDonne);
-					console.log("Final : ", result.totalFinal);
+					// console.log("Donnee : ", req.body.totalDonne);
+					// console.log("Final : ", result.totalFinal);
 					if (req.body.totalDonne < result.totalFinal * 1 - rabais * 1) {
 						var _dette = result.totalFinal * 1 - rabais * 1 - req.body.totalDonne;
-						console.log("_dette : ", _dette);
+						// console.log("_dette : ", _dette);
 
 						var objDette = Object.assign(
 							{},
@@ -523,7 +524,14 @@ exports.valideOrden = async function(req, res) {
 										montant: result.totalFinal
 									}
 								);
-								console.log("heoo : ", objectTransactions);
+								// console.log("heoo : ", objectTransactions);
+
+								var objOrden = orden.arrayOrden;
+								console.log("objOrden : ", objOrden);
+								for (let i in objOrden) {
+									let moveReserve = Services.moveReserve(objOrden[i].idproduit, objOrden[i].quantite);
+								}
+
 								var new_TransactionCaisse = new caisseTransaction(objectTransactions);
 								new_TransactionCaisse.save(function(err, TransactionCaisse) {
 									console.log("hi : ");
@@ -558,6 +566,17 @@ async function totatPorInterval(start, end) {
 		}
 	);
 }
+
+exports.getNotification = function(req, res) {
+	let message = "";
+	Notification.find({}, function(err, notificaton) {
+		if (err) {
+			res.json({ data: {}, success: false, message: err });
+		} else {
+			res.json({ data: notificaton, success: true, message: message });
+		}
+	});
+};
 
 exports.realiserPaiement = async function(req, res) {
 	let message = {};

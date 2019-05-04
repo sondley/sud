@@ -541,11 +541,11 @@ exports.get_depenses = async function(req, res) {
 	var objActifs = await getActifCurrentMonth(str_actifs_a_court_termes);
 	actifs = objActifs.actifs;
 	totalActif = objActifs.total;
-	console.log("objActifs : ", objActifs);
+	// console.log("objActifs : ", objActifs);
 	var objPassifs = await getPassifCurrentMonth(str_passifs_a_court_termes);
 	passifs = objPassifs.passifs;
 	totalPassif = objPassifs.total;
-	console.log("objPassifs : ", objPassifs);
+	// console.log("objPassifs : ", objPassifs);
 
 	balance = Object.assign({}, { actifs, passifs, capitaux, totalActif, totalPassif, totalCapitaux });
 
