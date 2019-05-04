@@ -381,7 +381,65 @@ async function getTotalRabaisByCurrentMonth() {
 	});
 }
 
-async function getPassifActifCurrentMonth(strType) {
+async function getPassifCurrentMonth(strType) {
+	console.log("string : ", strType);
+	let total = 0;
+	var today = new Date();
+	// console.log("today : ", today);
+	var dd = today.getDate();
+	var mm = today.getMonth() + 1; //January is 0!
+	var yyyy = today.getFullYear();
+
+	if (dd < 10) {
+		dd = "0" + dd;
+	}
+
+	if (mm < 10) {
+		mm = "0" + mm;
+	}
+	console.log("objActifPasif : 1");
+	//var newDate = mm + "/" + dd + "/" + yyyy;
+	return actifPasif.find({ type: strType }).then(actifPasif => {
+		console.log("result actifPasif: ", actifPasif);
+		var passifs = [];
+		for (let i = 0; i < actifPasif.length; i++) {
+			console.log("objActifPasif : 1");
+			var _date = actifPasif[i].created;
+			var _dd = _date.getDate();
+			var _mm = _date.getMonth() + 1; //January is 0!
+			var _yyyy = _date.getFullYear();
+
+			if (_dd < 10) {
+				_dd = "0" + _dd;
+			}
+
+			if (_mm < 10) {
+				_mm = "0" + _mm;
+			}
+
+			if (_mm == mm && _yyyy == yyyy) {
+				console.log("dbgd");
+				var objActifPasif = {};
+				var nom = actifPasif[i].description;
+				var montant = actifPasif[i].montant;
+				objActifPasif = Object.assign({}, { nom, montant });
+				console.log("-----objActifPasif ", objActifPasif);
+
+				passifs.push(objActifPasif);
+			}
+		}
+
+		for (let i = 0; i < passifs.length; i++) {
+			total += passifs[i].montant * 1;
+		}
+
+		var objArray = Object.assign({}, { passifs, total });
+
+		return objArray;
+	});
+}
+
+async function getActifCurrentMonth(strType) {
 	console.log("string : ", strType);
 	let total = 0;
 	var today = new Date();
@@ -401,7 +459,7 @@ async function getPassifActifCurrentMonth(strType) {
 	//var newDate = mm + "/" + dd + "/" + yyyy;
 	return actifPasif.find({ type: strType }).then(actifPasif => {
 		console.log("result : ", actifPasif);
-		var _array = [];
+		var actifs = [];
 		for (let i = 0; i < actifPasif.length; i++) {
 			var _date = actifPasif[i].created;
 			var _dd = _date.getDate();
@@ -417,15 +475,20 @@ async function getPassifActifCurrentMonth(strType) {
 			}
 
 			if (_mm == mm && _yyyy == yyyy) {
-				_array.push(actifPasif[i]);
+				var objActifPasif = {};
+				var nom = actifPasif[i].description;
+				var montant = actifPasif[i].montant;
+				objActifPasif = Object.assign({}, { nom, montant });
+
+				actifs.push(objActifPasif);
 			}
 		}
 
-		for (let i = 0; i < _array.length; i++) {
-			total += _array[i].montant * 1;
+		for (let i = 0; i < actifs.length; i++) {
+			total += actifs[i].montant * 1;
 		}
 
-		var objArray = Object.assign({}, { _array, total });
+		var objArray = Object.assign({}, { actifs, total });
 
 		return objArray;
 	});
@@ -442,40 +505,78 @@ exports.get_depenses = async function(req, res) {
 
 	//error
 
-	var arrPassifCourtTerme = await getPassifActifCurrentMonth(str_passifs_a_court_termes);
-	var arrPassifLongTerme = await getPassifActifCurrentMonth(str_passifs_a_long_termes);
-	var arrActifCourtTerme = await getPassifActifCurrentMonth(str_actifs_a_court_termes);
-	//console.log("arrActifCourtTerme : ", arrActifCourtTerme);
-	var arrActifLongTerme = await getPassifActifCurrentMonth(str_actifs_a_long_termes);
-	var arrDepense = await getPassifActifCurrentMonth(str_depenses);
-	var arrSollicitude = await getSollicitudeCurrentMonth();
-	var totalVenteDuMois = await getTotalVenteByCurrentMonth();
-	var totalRabaisDuMois = await getTotalRabaisByCurrentMonth();
-	var totalDetteClientDuMois = await getDetteClientCurrentMonth();
-	var totalDetteFournisseurDuMois = await getDetteFournisseurCurrentMonth();
-	var totalActifProduit = await getTotalActifProduit();
+	// var arrPassifCourtTerme = await getPassifActifCurrentMonth(str_passifs_a_court_termes);
+	// var arrPassifLongTerme = await getPassifActifCurrentMonth(str_passifs_a_long_termes);
+	// var arrActifCourtTerme = await getPassifActifCurrentMonth(str_actifs_a_court_termes);
+	// //console.log("arrActifCourtTerme : ", arrActifCourtTerme);
+	// var arrActifLongTerme = await getPassifActifCurrentMonth(str_actifs_a_long_termes);
+	// var arrDepense = await getPassifActifCurrentMonth(str_depenses);
+	// var arrSollicitude = await getSollicitudeCurrentMonth();
+	// var totalVenteDuMois = await getTotalVenteByCurrentMonth();
+	// var totalRabaisDuMois = await getTotalRabaisByCurrentMonth();
+	// var totalDetteClientDuMois = await getDetteClientCurrentMonth();
+	// var totalDetteFournisseurDuMois = await getDetteFournisseurCurrentMonth();
+	// var totalActifProduit = await getTotalActifProduit();
 
-	var totalDevolutionProduit = await getDevolutionCurrentMonth();
+	// var totalDevolutionProduit = await getDevolutionCurrentMonth();
 
-	objDepenses = Object.assign(
+	var data = {};
+	var balance = {};
+	var bnr = {};
+	var resultats = {};
+
+	var bnrDebut = 0;
+	var bnrBeneficeMois = 0;
+	var bnrFin = bnrDebut + bnrBeneficeMois;
+
+	bnr = Object.assign({}, { bnrDebut, bnrBeneficeMois, bnrFin });
+
+	var actifs = [];
+	var passifs = [];
+	var capitaux = [];
+	var totalActif = 0;
+	var totalPassif = 0;
+	var totalCapitaux = 0;
+
+	var objActifs = await getActifCurrentMonth(str_actifs_a_court_termes);
+	actifs = objActifs.actifs;
+	totalActif = objActifs.totalActif;
+	console.log("objActifs : ", objActifs);
+	var objPassifs = await getPassifCurrentMonth(str_passifs_a_court_termes);
+	passifs = objPassifs.passifs;
+	totalPassif = objPassifs.totalPassif;
+	console.log("objPassifs : ", objPassifs);
+
+	balance = Object.assign({}, { actifs, passifs, capitaux, totalActif, totalPassif, totalCapitaux });
+
+	data = Object.assign(
 		{},
 		{
-			arrActifCourtTerme,
-			arrPassifCourtTerme,
-			arrPassifLongTerme,
-			arrActifLongTerme,
-			arrDepense,
-			arrSollicitude,
-			totalVenteDuMois,
-			totalRabaisDuMois,
-			totalDetteClientDuMois,
-			totalDetteFournisseurDuMois,
-			totalActifProduit,
-			totalDevolutionProduit
+			balance,
+			bnr,
+			resultats
 		}
 	);
 
-	res.json({ data: objDepenses, success: true, message: message });
+	// objDepenses = Object.assign(
+	// 	{},
+	// 	{
+	// 		arrActifCourtTerme,
+	// 		arrPassifCourtTerme,
+	// 		arrPassifLongTerme,
+	// 		arrActifLongTerme,
+	// 		arrDepense,
+	// 		arrSollicitude,
+	// 		totalVenteDuMois,
+	// 		totalRabaisDuMois,
+	// 		totalDetteClientDuMois,
+	// 		totalDetteFournisseurDuMois,
+	// 		totalActifProduit,
+	// 		totalDevolutionProduit
+	// 	}
+	// );
+
+	res.json({ data: data, success: true, message: message });
 };
 
 exports.create_a_actifPasif = function(req, res) {
