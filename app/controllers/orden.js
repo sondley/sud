@@ -184,7 +184,11 @@ exports.create_a_orden = async function(req, res) {
 				quantite +
 				" Vous avez mis une limite de " +
 				obj.limit;
-			ServicesNotification.createNotification(objOrden[i].idproduit, nom, messageNotification);
+			var notifications = await ServicesNotification.createNotification(
+				objOrden[i].idproduit,
+				nom,
+				messageNotification
+			);
 		}
 
 		//let moveReserve = Services.moveReserve(objOrden[i].idproduit, objOrden[i].quantite);
