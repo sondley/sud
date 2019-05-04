@@ -27,7 +27,7 @@ exports.delete_a_orden = async function(req, res) {
 			let obj = await getProduitById(objOrden[i].idproduit);
 
 			if (objOrden[i].idproduit != undefined && objOrden[i].quantite != undefined) {
-				let addReserve = Services.addReserve(objOrden[i].idproduit, objOrden[i].quantite);
+				//let addReserve = Services.addReserve(objOrden[i].idproduit, objOrden[i].quantite);
 			}
 
 			//let quantite =objOrden[i].quantite;
@@ -330,7 +330,7 @@ exports.update_a_orden = async function(req, res) {
 
 		let prixUnite = obj.sellPrice * 1;
 
-		let moveReserve = Services.moveReserve(objOrden[i].idproduit, objOrden[i].quantite);
+		//let moveReserve = Services.moveReserve(objOrden[i].idproduit, objOrden[i].quantite);
 
 		resObjOrden = Object.assign(
 			{},
