@@ -536,9 +536,9 @@ exports.valideOrden = async function(req, res) {
 
 								var objOrden = orden.arrayOrden;
 								console.log("objOrden : ", objOrden);
-								for (let i in objOrden) {
-									let moveReserve = Services.moveReserve(objOrden[i].idproduit, objOrden[i].quantite);
-								}
+								// for (let i in objOrden) {
+								// 	let moveReserve = Services.moveReserve(objOrden[i].idproduit, objOrden[i].quantite);
+								// }
 
 								var new_TransactionCaisse = new caisseTransaction(objectTransactions);
 								new_TransactionCaisse.save(function(err, TransactionCaisse) {
@@ -1001,12 +1001,12 @@ exports.getCaisseNow = async function(req, res) {
 					if (err) {
 						res.json({ data: {}, success: false, message: err });
 					} else {
-						console.log("caisse : ", caisse);
+						// console.log("caisse : ", caisse);
 						res.json({ data: [caisse], success: true, message: message });
 					}
 				});
 			} else {
-				console.log("caisse : ", caisse);
+				// console.log("caisse : ", caisse);
 				res.json({ data: caisse, success: true, message: message });
 			}
 		}
@@ -1037,7 +1037,7 @@ exports.closeCaisse = async function(req, res) {
 
 	var idCaisse = _Caisse[0]._id;
 	var totalCaisseNow = await ServicesCaisses.totalDisponibleCaisseToday();
-	console.log(totalCaisseNow);
+	// console.log(totalCaisseNow);
 
 	Caisse.findOneAndUpdate(
 		{ _id: idCaisse },
@@ -1080,9 +1080,11 @@ async function updateProduits(arrayProduit) {
 		//console.log(arrayProduit[i]);
 		var check = await ServicesNotifications.checkExisteNotificationProduct(arrayProduit[i].idProduit);
 		console.log(" check : ", check);
-		if (check == 1) {
+		if (check == 0) {
 			var Produit = await getProduitById(arrayProduit[i].idProduit);
-			if (Produit.unit > Produit.limit) {
+			// console.log("Produit.unit : ", Produit.unit);
+			// console.log("Produit.limit : ", Produit.limit);
+			if (Produit.unit >= Produit.limit) {
 				var deleteNotification = await ServicesNotifications.deleteNotifications(arrayProduit[i].idProduit);
 			}
 		}
@@ -1094,86 +1096,83 @@ exports.ValiderAchat = async function(req, res) {
 	// console.log(" req : ", req.body);
 	var rabais = req.body.rabais;
 	var _Achat = await getAchatById(req.body.idAchat);
-	var executeUpdateProduit = await updateProduits(_Achat.arrayAchat);
-	User.findById(req.body.idUser).then(user => {
-		// console.log(" user : ", user);
-		var valideur = user.nom + " " + user.prenom;
 
-		//console.log("user",user);
-		if (!user) {
-			return false;
-		} else if (user) {
-			//console.log("********hi");
-			return Achat.findById(req.body.idAchat).then(result => {
-				// console.log(" result : ", result);
-				console.log("body receive ", req.body);
-				if (result.etat == "1") {
-					let message = "";
-					var today = new Date();
-					var totalFinal = req.body.transportFrais + req.body.autres + result.total - rabais;
+	var user = await getUserById(req.body.idUser);
+	// console.log(" user : ", user);
+	var valideur = user.nom + " " + user.prenom;
 
-					if (req.body.montant < result.totalFinal * 1) {
-						var _dette = result.totalFinal * 1 - rabais * 1 - req.body.totalDonne;
-						var objDette = Object.assign(
-							{},
-							{ nomClient: result.client, idCommande: req.body.idAchat, quantite: _dette }
-						);
-						var new_echange = new DetteFournisseurs(objDette);
-						new_echange.save();
+	//console.log("user",user);
+	if (!user) {
+		return false;
+	} else if (user) {
+		//console.log("********hi");
+		var result = await getAchatById(req.body.idAchat);
+		// console.log(" result : ", result);
+		console.log("body receive ", req.body);
+		if (result.etat == "1") {
+			let message = "";
+			var today = new Date();
+			var totalFinal = req.body.transportFrais + req.body.autres + result.total - rabais;
+
+			if (req.body.montant < result.totalFinal * 1) {
+				var _dette = result.totalFinal * 1 - rabais * 1 - req.body.totalDonne;
+				var objDette = Object.assign({}, { nomClient: result.client, idCommande: req.body.idAchat, quantite: _dette });
+				var new_echange = new DetteFournisseurs(objDette);
+				new_echange.save();
+			}
+			// console.log(" totalFinal : ", totalFinal);
+			Achat.findOneAndUpdate(
+				{ _id: req.body.idAchat },
+				{
+					$set: {
+						etat: "0",
+						valideur: valideur,
+						validationDate: today,
+						totalFinal: totalFinal,
+						transportFrais: req.body.transportFrais,
+						autres: req.body.autres,
+						rabais: rabais
 					}
-					// console.log(" totalFinal : ", totalFinal);
-					Achat.findOneAndUpdate(
-						{ _id: req.body.idAchat },
-						{
-							$set: {
-								etat: "0",
-								valideur: valideur,
-								validationDate: today,
-								totalFinal: totalFinal,
-								transportFrais: req.body.transportFrais,
-								autres: req.body.autres,
-								rabais: rabais
+				},
+				{ new: true },
+				async function(err, achat) {
+					if (err) {
+						res.json({ data: {}, success: false, message: err });
+					} else {
+						var objectTransactions = Object.assign(
+							{},
+							{
+								type: "Achat",
+								flux: "Sortie",
+								idTransaction: req.body.idAchat,
+								realisateur: valideur,
+								montant: totalFinal
 							}
-						},
-						{ new: true },
-						function(err, achat) {
-							if (err) {
-								res.json({ data: {}, success: false, message: err });
-							} else {
-								var objectTransactions = Object.assign(
-									{},
-									{
-										type: "Achat",
-										flux: "Sortie",
-										idTransaction: req.body.idAchat,
-										realisateur: valideur,
-										montant: totalFinal
-									}
-								);
-								console.log("heoo : ", objectTransactions);
-								var new_TransactionCaisse = new caisseTransaction(objectTransactions);
-								new_TransactionCaisse.save(function(err, TransactionCaisse) {
-									if (totalFinal > req.body.montant) {
-										var _dette = totalFinal - req.body.montant;
-										console.log("_dette : ", _dette);
+						);
+						console.log("heoo : ", objectTransactions);
 
-										var objDette = Object.assign(
-											{},
-											{ nomProvider: result.provider, idAchat: req.body.idAchat, quantite: _dette }
-										);
-										var new_echange = new DetteFournisseurs(objDette);
-										new_echange.save();
-									}
-									console.log("hi : ");
-									res.json({ data: achat, success: true, message: message });
-								});
+						var new_TransactionCaisse = new caisseTransaction(objectTransactions);
+						new_TransactionCaisse.save(function(err, TransactionCaisse) {
+							if (totalFinal > req.body.montant) {
+								var _dette = totalFinal - req.body.montant;
+								console.log("_dette : ", _dette);
+
+								var objDette = Object.assign(
+									{},
+									{ nomProvider: result.provider, idAchat: req.body.idAchat, quantite: _dette }
+								);
+								var new_echange = new DetteFournisseurs(objDette);
+								new_echange.save();
 							}
-						}
-					);
+							console.log("hi : ");
+							res.json({ data: achat, success: true, message: message });
+						});
+					}
 				}
-			});
+			);
+			var executeUpdateProduit = await updateProduits(_Achat.arrayAchat);
 		}
-	});
+	}
 };
 
 // pendiente

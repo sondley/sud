@@ -196,7 +196,7 @@ exports.create_a_orden = async function(req, res) {
 			var notifications = await ServicesNotification.createNotification(idproduit, nomProduit, value, obj.limit);
 		}
 
-		//let moveReserve = Services.moveReserve(objOrden[i].idproduit, objOrden[i].quantite);
+		let moveReserve = Services.moveReserve(objOrden[i].idproduit, objOrden[i].quantite);
 		//console.log("yesss");
 
 		resObjOrden = Object.assign(
@@ -332,7 +332,7 @@ exports.update_a_orden = async function(req, res) {
 
 		let prixUnite = obj.sellPrice * 1;
 
-		//let moveReserve = Services.moveReserve(objOrden[i].idproduit, objOrden[i].quantite);
+		let moveReserve = Services.moveReserve(objOrden[i].idproduit, objOrden[i].quantite);
 
 		resObjOrden = Object.assign(
 			{},

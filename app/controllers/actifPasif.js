@@ -549,6 +549,18 @@ exports.get_depenses = async function(req, res) {
 
 	balance = Object.assign({}, { actifs, passifs, capitaux, totalActif, totalPassif, totalCapitaux });
 
+	var ventes = [];
+	var merchandises = [];
+	var explotation = [];
+	var totalVentes = 0;
+	var totalMerchandises = 0;
+	var totalExplotation = 0;
+	var beneficeNet = 0;
+	resultats = Object.assign(
+		{},
+		{ ventes, merchandises, explotation, totalVentes, totalMerchandises, totalExplotation, beneficeNet }
+	);
+
 	data = Object.assign(
 		{},
 		{

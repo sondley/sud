@@ -35,7 +35,8 @@ async function createNotification(idProduit, nomProduit, value, limit) {
 }
 
 async function deleteNotifications(_idProduit) {
-	Notification.remove({
+	console.log("******Delete : ");
+	return Notification.remove({
 		idProduit: _idProduit
 	});
 }
