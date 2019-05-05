@@ -163,6 +163,7 @@ exports.update_a_i_produit = function(req, res) {
 		//var obj = Object.assign({},{nom:req.body.nom, unit:req.body.unit, sellPrice:req.body.sellPrice, buyPrice:req.body.buyPrice, size:req.body.size, Description:req.body.Description,limit:req.body.limit,provider:nomProvider})
 
 		Iproduit.findOneAndUpdate({ _id: req.params.i_produitId }, objectItems, { new: true }, function(err, i_produit) {
+			console.log("i_produit : ", i_produit);
 			if (err) {
 				res.json({ data: {}, success: false, message: err });
 			} else {

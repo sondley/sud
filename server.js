@@ -52,8 +52,8 @@ var createPaiement = schedule.scheduleJob({ hour: 14, minute: 12, date: 30 }, fu
 
 var rule = new schedule.RecurrenceRule();
 rule.dayOfWeek = [0, new schedule.Range(0, 6)];
-rule.hour = 23;
-rule.minute = 23;
+rule.hour = 4;
+rule.minute = 00;
 
 var caisseClose = schedule.scheduleJob(rule, function() {
 	console.log("Hi helo");

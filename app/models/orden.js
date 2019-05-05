@@ -42,6 +42,9 @@ module.exports = mongoose.model(
 
 				prixUnite: {
 					type: SchemaTypes.Double
+				},
+				prixAchat: {
+					type: SchemaTypes.Double
 				}
 			}
 		],

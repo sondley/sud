@@ -21,6 +21,7 @@ var Sollicitude = mongoose.model("Sollicitudes");
 var caisseTransaction = mongoose.model("caisseTransactions");
 
 const Services = require("../services/manageResevas");
+const ServicesNotifications = require("../services/notification");
 
 exports.range_caisse = function(req, res) {
 	let message = {};
@@ -43,13 +44,20 @@ exports.range_caisse = function(req, res) {
 
 async function getProduitById(strId) {
 	return Iproduit.findById(strId).then(i_produit => {
-		//console.log(i_produit.sellPrice);
+		console.log("i_produit yes: ", i_produit);
 		return i_produit;
 	});
 }
 
 async function getUserById(strId) {
 	return User.findById(strId).then(user => {
+		//console.log(i_produit.sellPrice);
+		return user;
+	});
+}
+
+async function getAchatById(strId) {
+	return Achat.findById(strId).then(user => {
 		//console.log(i_produit.sellPrice);
 		return user;
 	});
@@ -1045,10 +1053,48 @@ exports.closeCaisse = async function(req, res) {
 	);
 };
 
+async function updateProduitStockById(idProduit, _unit) {
+	// console.log("Update stock : ", idProduit);
+	// console.log("Update _unit : ", _unit);
+	var Produit = await getProduitById(idProduit);
+	_unit = _unit + Produit.unit * 1;
+	// console.log("Update _unit 2: ", _unit);
+	return Iproduit.findOneAndUpdate(
+		{ _id: idProduit },
+		{
+			$set: {
+				unit: _unit
+			}
+		},
+		{ new: true },
+		function(err, orden) {
+			if (err) {
+				return err;
+			} else return orden;
+		}
+	);
+}
+
+async function updateProduits(arrayProduit) {
+	for (let i = 0; i < arrayProduit.length; i++) {
+		//console.log(arrayProduit[i]);
+		var check = await ServicesNotifications.checkExisteNotificationProduct(arrayProduit[i].idProduit);
+		console.log(" check : ", check);
+		if (check == 1) {
+			var Produit = await getProduitById(arrayProduit[i].idProduit);
+			if (Produit.unit > Produit.limit) {
+				var deleteNotification = await ServicesNotifications.deleteNotifications(arrayProduit[i].idProduit);
+			}
+		}
+
+		var doUpdate = await updateProduitStockById(arrayProduit[i].idProduit, arrayProduit[i].quantite);
+	}
+}
 exports.ValiderAchat = async function(req, res) {
 	// console.log(" req : ", req.body);
 	var rabais = req.body.rabais;
-
+	var _Achat = await getAchatById(req.body.idAchat);
+	var executeUpdateProduit = await updateProduits(_Achat.arrayAchat);
 	User.findById(req.body.idUser).then(user => {
 		// console.log(" user : ", user);
 		var valideur = user.nom + " " + user.prenom;

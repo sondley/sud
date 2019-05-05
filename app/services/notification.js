@@ -24,7 +24,7 @@ async function createNotification(idProduit, nomProduit, value, limit) {
 	var objNotification = {};
 
 	objNotification = Object.assign({}, { idProduit: idProduit, nomProduit: nomProduit, value: value, limit: limit });
-	console.log("objNotification : ", objNotification);
+	//console.log("objNotification : ", objNotification);
 	let check = await checkExisteNotificationProduct(idProduit);
 
 	if (check == 1) {

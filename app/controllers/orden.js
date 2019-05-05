@@ -174,6 +174,7 @@ exports.create_a_orden = async function(req, res) {
 		let nom = obj.nom;
 
 		let prixUnite = obj.sellPrice.value * 1;
+		let prixAchat = obj.buyPrice.value * 1;
 
 		// console.log(" obj.unit : ", obj.unit);
 		// console.log(" quantite: ", quantite);
@@ -190,7 +191,7 @@ exports.create_a_orden = async function(req, res) {
 				obj.limit;
 			var idproduit = objOrden[i].idproduit.toString();
 			var nomProduit = nom;
-			var messages = messageNotification;
+			//var messages = messageNotification;
 
 			var notifications = await ServicesNotification.createNotification(idproduit, nomProduit, value, obj.limit);
 		}
@@ -205,6 +206,7 @@ exports.create_a_orden = async function(req, res) {
 				nom: nom,
 				quantite: quantite,
 				prixUnite: prixUnite,
+				prixAchat: prixAchat,
 				total: quantite * prixUnite
 			}
 		);
