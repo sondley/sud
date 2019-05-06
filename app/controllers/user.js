@@ -868,7 +868,7 @@ exports.ValiderTransactionEchange = async function(req, res) {
 									{},
 									{
 										type: "Changement de Monnaie",
-										flux: "Rentree",
+										flux: "Sortie",
 										idTransaction: req.body.idTransactionEchange,
 										realisateur: valideur,
 										montant: result.total
@@ -878,7 +878,7 @@ exports.ValiderTransactionEchange = async function(req, res) {
 								var new_TransactionCaisse = new caisseTransaction(objectTransactions);
 								new_TransactionCaisse.save(function(err, TransactionCaisse) {
 									console.log("hi : ");
-									res.json({ data: TransactionCaisse, success: true, message: message });
+									res.json({ data: transaction, success: true, message: message });
 								});
 							}
 						}
