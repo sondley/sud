@@ -550,17 +550,26 @@ exports.get_depenses = async function(req, res) {
 	balance = Object.assign({}, { actifs, passifs, capitaux, totalActif, totalPassif, totalCapitaux });
 
 	var ventes = [];
-	var objVente = Object.assign({}, { ventes: 0, RRv: 0, VenteNette: 0 });
-	ventes.push(objVente);
+	var venteTotal = 100;
+	var rabaisVente = 10;
+
+	ventes.push({ nom: "ventes", montant: 100 });
+	ventes.push({ nom: "RRv", montant: 10 });
+	//ventes.push({ nom: "Vente Nettes", montant: 100 });
+
+	console.log(ventes);
 	var merchandises = [];
 	var explotation = [];
-	var totalVentes = 0;
+	var totalVentes = venteTotal * 1 - rabaisVente * 1;
+
 	var totalMerchandises = 0;
 	var totalExplotation = 0;
 	var beneficeNet = 0;
+
+	//explotation.push({ nom: salaire, montant: 15 });
 	resultats = Object.assign(
 		{},
-		{ ventes, merchandises, explotation, totalVentes, totalMerchandises, totalExplotation, beneficeNet }
+		{ ventes, merchandises, venteNet, explotation, totalVentes, totalMerchandises, totalExplotation, beneficeNet }
 	);
 
 	data = Object.assign(
