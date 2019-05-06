@@ -9,6 +9,8 @@ var mongoose = require("mongoose"),
 	Devolution = mongoose.model("Devolutions"),
 	DetteFournisseurs = mongoose.model("DetteFournisseurs");
 
+const ServicesBenefices = require("../services/benefice");
+
 // const JeySon = {
 // 	total: 100000000,
 // 	data: [
@@ -421,9 +423,9 @@ async function getPassifCurrentMonth(strType) {
 				console.log("dbgd");
 				var objActifPasif = {};
 				var nom = actifPasif[i].description;
-				var montant = actifPasif[i].montant * 1;
+				var montant = actifPasif[i].montant * 5;
 				objActifPasif = Object.assign({}, { nom, montant });
-				console.log("-----objActifPasif ", objActifPasif);
+				// console.log("-----objActifPasif ", objActifPasif);
 
 				passifs.push(objActifPasif);
 			}
@@ -477,7 +479,61 @@ async function getActifCurrentMonth(strType) {
 			if (_mm == mm && _yyyy == yyyy) {
 				var objActifPasif = {};
 				var nom = actifPasif[i].description;
-				var montant = actifPasif[i].montant * 1;
+				var montant = actifPasif[i].montant * 5;
+				objActifPasif = Object.assign({}, { nom, montant });
+
+				actifs.push(objActifPasif);
+			}
+		}
+
+		for (let i = 0; i < actifs.length; i++) {
+			total += actifs[i].montant * 1;
+		}
+
+		var objArray = Object.assign({}, { actifs, total });
+
+		return objArray;
+	});
+}
+
+async function getDepenseCurrentMonth(strType) {
+	console.log("string : ", strType);
+	let total = 0;
+	var today = new Date();
+	// console.log("today : ", today);
+	var dd = today.getDate();
+	var mm = today.getMonth() + 1; //January is 0!
+	var yyyy = today.getFullYear();
+
+	if (dd < 10) {
+		dd = "0" + dd;
+	}
+
+	if (mm < 10) {
+		mm = "0" + mm;
+	}
+
+	//var newDate = mm + "/" + dd + "/" + yyyy;
+	return actifPasif.find({ type: strType }).then(actifPasif => {
+		var actifs = [];
+		for (let i = 0; i < actifPasif.length; i++) {
+			var _date = actifPasif[i].created;
+			var _dd = _date.getDate();
+			var _mm = _date.getMonth() + 1; //January is 0!
+			var _yyyy = _date.getFullYear();
+
+			if (_dd < 10) {
+				_dd = "0" + _dd;
+			}
+
+			if (_mm < 10) {
+				_mm = "0" + _mm;
+			}
+
+			if (_mm == mm && _yyyy == yyyy) {
+				var objActifPasif = {};
+				var nom = actifPasif[i].description;
+				var montant = actifPasif[i].montant * 1 * 5;
 				objActifPasif = Object.assign({}, { nom, montant });
 
 				actifs.push(objActifPasif);
@@ -550,23 +606,29 @@ exports.get_depenses = async function(req, res) {
 	balance = Object.assign({}, { actifs, passifs, capitaux, totalActif, totalPassif, totalCapitaux });
 
 	var ventes = [];
-	var venteTotal = 100;
-	var rabaisVente = 10;
+	// var venteTotal = 100;
+	var rabaisVente = await ServicesBenefices.RabaisVente();
+	var montantVente = await ServicesBenefices.TotalVente();
+	var totalVentes = montantVente - rabaisVente;
 
-	ventes.push({ nom: "ventes", montant: 100 });
-	ventes.push({ nom: "RRv", montant: 10 });
+	console.log("rabaisVente : ", rabaisVente);
+
+	ventes.push({ nom: "ventes", montant: montantVente });
+	ventes.push({ nom: "RRv", montant: rabaisVente });
 	//ventes.push({ nom: "Vente Nettes", montant: 100 });
 
 	console.log(ventes);
 	var merchandises = [];
-	var explotation = [];
-	var totalVentes = venteTotal * 1 - rabaisVente * 1;
+	var arrDepense = await getDepenseCurrentMonth("Depenses");
+	var explotation = arrDepense.actifs;
 
 	var totalMerchandises = 0;
-	var totalExplotation = 0;
+	var totalExplotation = arrDepense.total;
 	var beneficeNet = 0;
 
-	//explotation.push({ nom: salaire, montant: 15 });
+	// explotation.push({ nom: "salaire", montant: 15 });
+	// explotation.push({ nom: "electricite", montant: 40 });
+	// explotation.push({ nom: "frais", montant: 45 });
 	resultats = Object.assign(
 		{},
 		{ ventes, merchandises, explotation, totalVentes, totalMerchandises, totalExplotation, beneficeNet }
