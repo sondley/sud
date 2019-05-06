@@ -569,7 +569,7 @@ exports.get_depenses = async function(req, res) {
 	//explotation.push({ nom: salaire, montant: 15 });
 	resultats = Object.assign(
 		{},
-		{ ventes, merchandises, venteNet, explotation, totalVentes, totalMerchandises, totalExplotation, beneficeNet }
+		{ ventes, merchandises, explotation, totalVentes, totalMerchandises, totalExplotation, beneficeNet }
 	);
 
 	data = Object.assign(
