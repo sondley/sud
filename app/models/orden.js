@@ -27,6 +27,10 @@ module.exports = mongoose.model(
 					type: String,
 					required: true
 				},
+				mode: {
+					type: String,
+					required: true
+				},
 				quantite: {
 					type: SchemaTypes.Number,
 					required: true,

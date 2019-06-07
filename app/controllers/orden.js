@@ -142,13 +142,24 @@ async function getLastOrden() {
 
 async function getLastNumeroOrden() {
 	var data = await getLastOrden();
+	console.log(" data : ", data.length);
 	var last = data.length - 1;
-	//console.log(" data : ", data);
+	console.log(" data : ", data);
 	if (data.length == 0) return 1;
-	else return data[last].numero + 1;
+	else {
+		var i;
+		let mayor = 0;
+		for (i = 0; i <= last; i++) {
+			if (data[i].numero > mayor) {
+				mayor = data[i].numero;
+			}
+		}
+		return mayor + 1;
+	}
 }
 
 exports.create_a_orden = async function(req, res) {
+	console.log(req.body);
 	const objOrden = req.body.arrayOrden;
 	let message = {};
 	let _numero = await getLastNumeroOrden();
@@ -157,7 +168,6 @@ exports.create_a_orden = async function(req, res) {
 	//console.log("objOrden : ",objOrden);
 
 	let valor = await totalByOrden(objOrden);
-	//console.log("totalOrden : ",valor);
 
 	//console.log("Aqui : ");
 	var resObjOrden = {};
@@ -165,15 +175,28 @@ exports.create_a_orden = async function(req, res) {
 
 	let objUser = await getUserById(req.body.vendeur);
 	var vendeur = objUser.nom + " " + objUser.prenom;
+	let prixUnite;
+	var _mode;
+	let qtyCaisse = 1;
 
 	for (let i in objOrden) {
 		let obj = await getProduitById(objOrden[i].idproduit);
 
 		let quantite = objOrden[i].quantite;
+		qtyCaisse = obj.qtyCaisse;
+		_mode = objOrden[i].mode;
 
 		let nom = obj.nom;
+		if (_mode == "detaille") {
+			prixUnite = obj.sellPrice.value * 1;
+		} else {
+			if (quantite < 3) {
+				prixUnite = obj.caissePrice.value * 1;
+			} else {
+				prixUnite = obj.grosPrice.value * 1;
+			}
+		}
 
-		let prixUnite = obj.sellPrice.value * 1;
 		let prixAchat = obj.buyPrice.value * 1;
 
 		// console.log(" obj.unit : ", obj.unit);
@@ -195,8 +218,11 @@ exports.create_a_orden = async function(req, res) {
 
 			var notifications = await ServicesNotification.createNotification(idproduit, nomProduit, value, obj.limit);
 		}
-
-		let moveReserve = Services.moveReserve(objOrden[i].idproduit, objOrden[i].quantite);
+		if (_mode == "detaille") {
+			let moveReserve = Services.moveReserve(objOrden[i].idproduit, objOrden[i].quantite);
+		} else {
+			let moveReserve = Services.moveReserve(objOrden[i].idproduit, objOrden[i].quantite * qtyCaisse);
+		}
 		//console.log("yesss");
 
 		resObjOrden = Object.assign(
@@ -205,6 +231,7 @@ exports.create_a_orden = async function(req, res) {
 				idproduit: objOrden[i].idproduit,
 				nom: nom,
 				quantite: quantite,
+				mode: _mode,
 				prixUnite: prixUnite,
 				prixAchat: prixAchat,
 				total: quantite * prixUnite
@@ -218,12 +245,16 @@ exports.create_a_orden = async function(req, res) {
 		{ arrayOrden: arrayOrden2, client: req.body.client, vendeur: vendeur, totalFinal: valor, numero: _numero }
 	);
 
+	console.log("resultObject : ", resultObject);
+
 	//res.json({data:resultObject,success:true, message:message});
 	var new_orden = new Orden(resultObject);
 	new_orden.save(function(err, orden) {
 		if (err) {
+			console.log("error : ", err);
 			res.json({ data: {}, success: false, message: err });
 		} else {
+			console.log("data : ", orden);
 			res.json({ data: orden, success: true, message: message });
 		}
 	});
