@@ -26,6 +26,22 @@ module.exports = mongoose.model(
 			default: 0,
 			min: 0
 		},
+		caissePrice: {
+			type: SchemaTypes.Double,
+			default: 0,
+			min: 0
+		},
+		grosPrice: {
+			type: SchemaTypes.Double,
+			default: 0,
+			min: 0
+		},
+		qtyCaisse: {
+			type: SchemaTypes.Number,
+			default: 0,
+			min: 0
+		},
+
 		size: {
 			type: String,
 			default: "",

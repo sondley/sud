@@ -57,7 +57,10 @@ exports.create_a_i_produit = function(req, res) {
 							size: req.body.size,
 							Description: req.body.Description,
 							limit: req.body.limit,
-							provider: nomProvider
+							provider: nomProvider,
+							grosPrice: req.body.grosPrice,
+							qtyCaisse: req.body.qtyCaisse,
+							caissePrice: req.body.caissePrice
 						}
 					);
 					var new_i_produit = new Iproduit(obj);
